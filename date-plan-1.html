@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan the date</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #241f2e;
+    --indigo: #23305a;
+    --indigo-deep: #141b33;
+    --gold: #d9a441;
+    --rose: #c9707d;
+    --cream: #faf5ec;
+    --card: #fffdf9;
+    --line: rgba(36,31,46,0.12);
+    --pink: #ffe0eb;
+    --pink-deep: #ffc7dc;
+    --dark-pink: #c2185b;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ height:100%; margin:0; }
+  body{
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(120% 90% at 50% -10%, #3a4a86 0%, var(--indigo) 45%, var(--indigo-deep) 100%);
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+    position: relative;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:38%;
+    background: linear-gradient(180deg, rgba(217,164,65,0) 0%, rgba(217,164,65,0.10) 100%);
+    pointer-events:none;
+  }
+  .sun{
+    position:absolute;
+    width:220px; height:220px;
+    border-radius:50%;
+    background: radial-gradient(circle at 35% 35%, #ffe3ad, var(--gold) 60%, #b97a2e 100%);
+    top: 8%; left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.55;
+    filter: blur(1px);
+    pointer-events:none;
+  }
+  .wrap{
+    position:relative;
+    width:100%;
+    max-width: 420px;
+  }
+  .eyebrow{
+    text-align:center;
+    color: rgba(250,245,236,0.75);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    margin-bottom: 14px;
+  }
+  .dots{
+    display:flex;
+    justify-content:center;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .dot{
+    width:7px; height:7px; border-radius:50%;
+    background: rgba(250,245,236,0.3);
+    transition: all .35s ease;
+  }
+  .dot.active{ background: var(--gold); width:20px; border-radius:4px; }
+
+  .card{
+    background: var(--card);
+    border-radius: 22px;
+    padding: 34px 26px 28px;
+    box-shadow: 0 30px 60px -20px rgba(10,12,30,0.55);
+    position:relative;
+    overflow:hidden;
+  }
+  .card::after{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:0; height:4px;
+    background: linear-gradient(90deg, var(--gold), var(--rose));
+  }
+
+  h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 28px;
+    line-height:1.15;
+    margin: 0 0 6px;
+  }
+  .sub{
+    color: rgba(36,31,46,0.6);
+    font-size: 14.5px;
+    margin: 0 0 26px;
+    line-height:1.5;
+  }
+
+  label{
+    display:block;
+    font-size: 13px;
+    font-weight:600;
+    margin: 0 0 8px;
+    color: rgba(36,31,46,0.8);
+  }
+  .field{ margin-bottom: 20px; }
+  input[type="date"], input[type="time"], input[type="email"]{
+    width:100%;
+    padding: 13px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--line);
+    font-family:'Inter',sans-serif;
+    font-size: 15px;
+    background: #fff;
+    color: var(--ink);
+    outline:none;
+    transition: border-color .2s ease;
+  }
+  input:focus{ border-color: var(--gold); }
+
+  .choices{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 26px;
+  }
+  .choice{
+    border: 1.5px solid var(--line);
+    border-radius: 16px;
+    padding: 20px 12px 16px;
+    text-align:center;
+    cursor:pointer;
+    background:#fff;
+    transition: border-color .2s ease, transform .15s ease, background .2s ease;
+  }
+  .choice:hover{ transform: translateY(-2px); }
+  .choice.selected{
+    border-color: var(--gold);
+    background: linear-gradient(180deg, #fff7e8, #fff);
+  }
+  .choice .glyph{ font-size: 30px; display:block; margin-bottom:8px; }
+  .choice .name{ font-weight:600; font-size: 15px; margin-bottom:3px; }
+  .choice .desc{ font-size: 12.5px; color: rgba(36,31,46,0.55); line-height:1.4; }
+
+  .btn{
+    width:100%;
+    padding: 14px;
+    border-radius: 12px;
+    border:none;
+    background: var(--indigo);
+    color: #fff;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size: 15px;
+    cursor:pointer;
+    transition: background .2s ease, opacity .2s ease, transform .1s ease;
+  }
+  .btn:active{ transform: scale(0.98); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+  .btn.gold{ background: linear-gradient(120deg, var(--gold), var(--rose)); }
+  .btn-row{ display:flex; gap:10px; }
+  .btn-row .btn{ flex:1; }
+  .btn.ghost{
+    background:transparent;
+    color: rgba(36,31,46,0.55);
+    border: 1.5px solid var(--line);
+  }
+
+  .summary{
+    background: var(--cream);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 22px;
+  }
+  .summary .row{
+    display:flex;
+    justify-content:space-between;
+    font-size: 14px;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(36,31,46,0.08);
+  }
+  .summary .row:last-child{ border-bottom:none; }
+  .summary .row span:first-child{ color: rgba(36,31,46,0.55); }
+  .summary .row span:last-child{ font-weight:600; }
+
+  .step{ display:none; }
+  .step.active{ display:block; animation: rise .35s ease; }
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(8px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  .sent-note{
+    text-align:center;
+    font-size: 13px;
+    color: rgba(36,31,46,0.55);
+    margin-top: 14px;
+    line-height:1.5;
+  }
+
+  /* Proposal stage */
+  body.stage-proposal{
+    background: radial-gradient(120% 90% at 50% -10%, #fff3f7 0%, var(--pink) 45%, var(--pink-deep) 100%);
+  }
+  body.stage-proposal::before{ display:none; }
+  body.stage-proposal .sun{ display:none; }
+  body.stage-proposal .eyebrow,
+  body.stage-proposal .dots{ display:none; }
+  body.stage-proposal .card::after{ background: var(--dark-pink); }
+
+  .propose-step{ text-align:center; }
+  .propose-step .heart{
+    font-size: 42px;
+    display:block;
+    margin-bottom: 10px;
+  }
+  .propose-step h1{ font-size: 30px; margin-bottom: 30px; }
+
+  .propose-buttons{
+    position:relative;
+    min-height: 190px;
+  }
+  .btn.dark-pink{
+    background: var(--dark-pink);
+    color:#fff;
+  }
+  .no-btn{
+    position:absolute;
+    top: 68px;
+    left: 50%;
+    transform: translateX(-50%);
+    width:auto;
+    padding: 14px 30px;
+    border-radius: 12px;
+    border: 1.5px solid var(--dark-pink);
+    background:#fff;
+    color: var(--dark-pink);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size: 15px;
+    cursor:pointer;
+    transition: left .16s ease, top .16s ease;
+  }
+
+  @media (max-width: 380px){
+    h1{ font-size: 24px; }
+    .propose-step h1{ font-size: 26px; }
+    .card{ padding: 28px 18px 22px; }
+  }
+</style>
+</head>
+<body class="stage-proposal">
+  <div class="sun"></div>
+  <div class="wrap">
+    <div class="eyebrow">let's set the date</div>
+    <div class="dots">
+      <div class="dot active" data-dot="0"></div>
+      <div class="dot" data-dot="1"></div>
+      <div class="dot" data-dot="2"></div>
+      <div class="dot" data-dot="3"></div>
+    </div>
+
+    <div class="card">
+
+      <!-- Step 0: the proposal -->
+      <div class="step active propose-step" data-step="0">
+        <span class="heart">💗</span>
+        <h1>Will you marry me?</h1>
+        <div class="propose-buttons">
+          <button class="btn dark-pink" id="yesBtn">Yes</button>
+          <button class="no-btn" id="noBtn">No</button>
+        </div>
+      </div>
+
+      <!-- Step 1: date + time -->
+      <div class="step" data-step="1">
+        <h1>When are you free?</h1>
+        <p class="sub">Pick a day and time that works, and we'll take it from there.</p>
+        <div class="field">
+          <label for="date">Day</label>
+          <input type="date" id="date">
+        </div>
+        <div class="field">
+          <label for="time">Time</label>
+          <input type="time" id="time">
+        </div>
+        <button class="btn gold" id="toStep1" disabled>Next</button>
+      </div>
+
+      <!-- Step 2: beach or dinner -->
+      <div class="step" data-step="2">
+        <h1>Beach or dinner?</h1>
+        <p class="sub">Pick the vibe for the evening.</p>
+        <div class="choices">
+          <div class="choice" data-choice="beach">
+            <span class="glyph">🏖️</span>
+            <div class="name">Beach</div>
+            <div class="desc">Sandy toes, sunset light</div>
+          </div>
+          <div class="choice" data-choice="dinner">
+            <span class="glyph">🍷</span>
+            <div class="name">Dinner</div>
+            <div class="desc">Candlelight, good wine</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn ghost" id="backStep2">Back</button>
+          <button class="btn gold" id="toStep2" disabled>Next</button>
+        </div>
+      </div>
+
+      <!-- Step 3: summary + email -->
+      <div class="step" data-step="3">
+        <h1>Here's the plan</h1>
+        <p class="sub">Take a look, then send it to your inbox.</p>
+        <div class="summary">
+          <div class="row"><span>Day</span><span id="sumDate">—</span></div>
+          <div class="row"><span>Time</span><span id="sumTime">—</span></div>
+          <div class="row"><span>Vibe</span><span id="sumVibe">—</span></div>
+        </div>
+        <div class="field">
+          <label for="email">Send this plan to</label>
+          <input type="email" id="email" placeholder="you@email.com">
+        </div>
+        <div class="btn-row">
+          <button class="btn ghost" id="backStep3">Back</button>
+          <button class="btn gold" id="sendPlan" disabled>Send the plan ♥</button>
+        </div>
+        <p class="sent-note">Opens your email app with everything filled in — just hit send.</p>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  const state = { date:'', time:'', vibe:'', email:'' };
+  const steps = document.querySelectorAll('.step');
+  const dots = document.querySelectorAll('.dot');
+
+  function goTo(n){
+    steps.forEach(s => s.classList.toggle('active', s.dataset.step == n));
+    dots.forEach(d => d.classList.toggle('active', d.dataset.dot == n));
+    document.body.classList.toggle('stage-proposal', n == 0);
+  }
+
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const proposeBox = document.querySelector('.propose-buttons');
+
+  function dodgeNo(){
+    const box = proposeBox.getBoundingClientRect();
+    const btn = noBtn.getBoundingClientRect();
+    const maxX = Math.max(0, box.width - btn.width);
+    const maxY = Math.max(0, box.height - btn.height);
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+    noBtn.style.left = x + 'px';
+    noBtn.style.top = y + 'px';
+    noBtn.style.transform = 'none';
+  }
+  ['pointerenter','pointerdown','click','touchstart'].forEach(evt => {
+    noBtn.addEventListener(evt, (e) => { e.preventDefault(); dodgeNo(); }, { passive:false });
+  });
+  yesBtn.addEventListener('click', () => goTo(1));
+
+  const dateEl = document.getElementById('date');
+  const timeEl = document.getElementById('time');
+  const toStep1 = document.getElementById('toStep1');
+
+  function checkStep0(){
+    state.date = dateEl.value;
+    state.time = timeEl.value;
+    toStep1.disabled = !(state.date && state.time);
+  }
+  dateEl.addEventListener('input', checkStep0);
+  timeEl.addEventListener('input', checkStep0);
+  toStep1.addEventListener('click', () => goTo(2));
+
+  const choices = document.querySelectorAll('.choice');
+  const toStep2 = document.getElementById('toStep2');
+  choices.forEach(c => {
+    c.addEventListener('click', () => {
+      choices.forEach(o => o.classList.remove('selected'));
+      c.classList.add('selected');
+      state.vibe = c.dataset.choice;
+      toStep2.disabled = false;
+    });
+  });
+  document.getElementById('backStep2').addEventListener('click', () => goTo(1));
+  toStep2.addEventListener('click', () => {
+    document.getElementById('sumDate').textContent = formatDate(state.date);
+    document.getElementById('sumTime').textContent = formatTime(state.time);
+    document.getElementById('sumVibe').textContent = state.vibe === 'beach' ? 'Beach 🏖️' : 'Dinner 🍷';
+    goTo(3);
+  });
+
+  document.getElementById('backStep3').addEventListener('click', () => goTo(2));
+
+  const emailEl = document.getElementById('email');
+  const sendBtn = document.getElementById('sendPlan');
+  emailEl.addEventListener('input', () => {
+    state.email = emailEl.value;
+    sendBtn.disabled = !emailEl.value.includes('@');
+  });
+
+  sendBtn.addEventListener('click', () => {
+    const vibeLabel = state.vibe === 'beach' ? 'Beach' : 'Dinner';
+    const subject = `Our date: ${formatDate(state.date)}`;
+    const body =
+`It's official —
+
+Day: ${formatDate(state.date)}
+Time: ${formatTime(state.time)}
+Plan: ${vibeLabel}
+
+See you there.`;
+    const link = `mailto:${encodeURIComponent(state.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = link;
+  });
+
+  function formatDate(d){
+    if(!d) return '—';
+    const [y,m,day] = d.split('-');
+    const dt = new Date(y, m-1, day);
+    return dt.toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric' });
+  }
+  function formatTime(t){
+    if(!t) return '—';
+    const [h,min] = t.split(':');
+    const dt = new Date();
+    dt.setHours(h, min);
+    return dt.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+  }
+</script>
+</body>
+</html>
